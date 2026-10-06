@@ -82,6 +82,7 @@ Detailed execution order and dependencies are described in [`RUN_ORDER.md`](RUN_
 ??  ?????README.md
 ???????results/
     ?????README.md
+```
 
 Large raw datasets, third-party datasets, BAM files, STAR indices, and other machine-specific intermediate files are intentionally not stored in this repository.
 
@@ -181,13 +182,13 @@ The repository is intended to provide the analysis logic and reproducibility fra
 
 ### Derived data and archived release
 
-Processed and derived data underlying the analyses and figures will be deposited separately in Zenodo.
+Processed and derived data underlying the analyses and figures are archived separately in Zenodo.
 
-A fixed archival release of the code corresponding to the published article will also be archived in Zenodo.
+Dataset DOI: https://doi.org/10.5281/zenodo.23178149
 
-Reserved Zenodo dataset DOI: https://doi.org/10.5281/zenodo.23178149
+A fixed archival release of the analysis code is also available in Zenodo.
 
-The dataset DOI has been reserved. A permanent software DOI for the archived code release will be added before publication.
+Software DOI: https://doi.org/10.5281/zenodo.23179457
 
 ### Citation
 
