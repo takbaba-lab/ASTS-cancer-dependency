@@ -59,36 +59,29 @@ Detailed execution order and dependencies are described in [`RUN_ORDER.md`](RUN_
 
 ```text
 .
-├── README.md
-├── RUN_ORDER.md
-├── CITATION.cff
-├── LICENSE
-├── .gitignore
-│
-├── scripts/
-│   ├── analysis scripts in Python, R, and shell
-│   └── astra_map_env.sh
-│
-├── jobs/
-│   └── Fujitsu/PJM job scripts used on the Genkai system
-│
-├── environment/
-│   ├── astra-map.yml
-│   ├── astra-py.yml
-│   ├── astra-r.yml
-│   └── package-lock exports
-│
-├── metadata/
-│   └── sample_metadata.tsv
-│
-├── data/
-│   └── README.md
-│
-├── reference/
-│   └── README.md
-│
-└── results/
-    └── README.md
+?????README.md
+?????RUN_ORDER.md
+?????CITATION.cff
+?????LICENSE
+?????.gitignore
+???????scripts/
+??  ?????analysis scripts in Python, R, and shell
+??  ?????astra_map_env.sh
+???????jobs/
+??  ?????Fujitsu/PJM job scripts used on the Genkai system
+???????environment/
+??  ?????astra-map.yml
+??  ?????astra-py.yml
+??  ?????astra-r.yml
+??  ?????package-lock exports
+???????metadata/
+??  ?????sample_metadata.tsv
+???????data/
+??  ?????README.md
+???????reference/
+??  ?????README.md
+???????results/
+    ?????README.md
 
 Large raw datasets, third-party datasets, BAM files, STAR indices, and other machine-specific intermediate files are intentionally not stored in this repository.
 
@@ -135,9 +128,9 @@ The repository does not include large FASTA files or the STAR genome index.
 
 By default, the public scripts expect reference resources under:
 reference/
-├── ucsc_mm10_ERCC_EGFP_mcherry.fa
-├── mm10_ERCC_EGFP_mcherry.gtf
-└── star_index/
+?????ucsc_mm10_ERCC_EGFP_mcherry.fa
+?????mm10_ERCC_EGFP_mcherry.gtf
+?????star_index/
 
 Alternatively, external locations can be supplied where supported by environment variables such as:
 export ASTRA_STAR_INDEX=/path/to/star_index
@@ -194,9 +187,9 @@ Zenodo dataset DOI: to be added
 
 A fixed archival release of the code corresponding to the published article will also be archived in Zenodo.
 
-Zenodo software DOI: to be added
+Reserved Zenodo dataset DOI: https://doi.org/10.5281/zenodo.23178149
 
-The GitHub repository and Zenodo records will be updated with permanent identifiers before publication.
+The dataset DOI has been reserved. A permanent software DOI for the archived code release will be added before publication.
 
 ### Citation
 
