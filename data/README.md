@@ -98,8 +98,12 @@ This directory is excluded from Git by `.gitignore`.
 
 ## Processed data
 
-Selected processed and derived data required to reproduce the reported results will be deposited separately in Zenodo.
+Processed and derived data underlying the analyses and figures are archived separately in Zenodo.
 
-The Zenodo dataset DOI will be added before the final archived release.
+Dataset DOI: https://doi.org/10.5281/zenodo.23178149
+
+A fixed archival release of the analysis code is also available in Zenodo.
+
+Software DOI: https://doi.org/10.5281/zenodo.23179457
 
 Raw or licensed third-party datasets will not be redistributed through Zenodo unless redistribution is explicitly permitted by the original provider.
