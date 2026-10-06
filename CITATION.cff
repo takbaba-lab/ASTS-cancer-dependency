@@ -1,7 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the associated ASTS study and this repository."
-title: "ASTRA-Drug: reproducibility code for the androgen-suppressed transcriptional state study"
+title: "ASTS-cancer-dependency: reproducibility code for the androgen-suppressed transcriptional state study"
 type: software
+version: "1.0.0"
+repository-code: "https://github.com/takbaba-lab/ASTS-cancer-dependency"
 authors:
   - family-names: "Miao"
     given-names: "Yingqi"

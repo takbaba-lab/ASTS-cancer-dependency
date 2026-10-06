@@ -183,8 +183,6 @@ The repository is intended to provide the analysis logic and reproducibility fra
 
 Processed and derived data underlying the analyses and figures will be deposited separately in Zenodo.
 
-Zenodo dataset DOI: to be added
-
 A fixed archival release of the code corresponding to the published article will also be archived in Zenodo.
 
 Reserved Zenodo dataset DOI: https://doi.org/10.5281/zenodo.23178149
