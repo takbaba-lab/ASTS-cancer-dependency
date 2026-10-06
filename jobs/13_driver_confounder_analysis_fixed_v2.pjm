@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=2
+#PJM -L elapse=2:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 13: Driver confounder analysis
+# ============================================================
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/13_driver_confounder_analysis_fixed_v2.py"
+
+
+# ------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-py
+
+set -u
+
+export OMP_NUM_THREADS=2
+export OPENBLAS_NUM_THREADS=2
+export MKL_NUM_THREADS=2
+export MPLBACKEND=Agg
+
+
+# ------------------------------------------------------------
+# Run
+# ------------------------------------------------------------
+
+cd "${PROJECT_DIR}"
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+
+python --version
+
+sha256sum "${SCRIPT}"
+
+python -u "${SCRIPT}"

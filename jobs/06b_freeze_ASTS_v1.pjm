@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=2
+#PJM -L elapse=1:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# 06b: Freeze ASTS v1.0
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/06b_freeze_ASTS_v1.R"
+
+
+# ------------------------------------------------------------
+# Error handling
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+
+# ------------------------------------------------------------
+# micromamba
+# ------------------------------------------------------------
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-r
+
+set -u
+
+
+# ------------------------------------------------------------
+# Run
+# ------------------------------------------------------------
+
+cd "${PROJECT_DIR}"
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+
+
+echo "============================================================"
+echo "ASTRA-Drug 06b ASTS v1.0 freeze"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo "Working directory: $(pwd)"
+
+echo ""
+
+R --version | head -n 1
+
+echo ""
+
+echo "Input script checksum:"
+sha256sum "${SCRIPT}"
+
+echo ""
+
+
+Rscript "${SCRIPT}"
+
+
+# ------------------------------------------------------------
+# Output checksums
+# ------------------------------------------------------------
+
+echo ""
+echo "Primary ASTS checksum:"
+
+sha256sum \
+    "${PROJECT_DIR}/results/06b_ASTS_v1/ASTS_v1.0_primary_100genes.tsv"
+
+
+echo ""
+echo "Freeze manifest checksum:"
+
+sha256sum \
+    "${PROJECT_DIR}/results/06b_ASTS_v1/ASTS_v1.0_FREEZE_MANIFEST.txt"
+
+
+echo ""
+echo "============================================================"
+echo "06b successfully finished"
+echo "============================================================"

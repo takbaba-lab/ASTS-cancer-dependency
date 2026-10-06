@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated ASTS study and this repository."
+title: "ASTRA-Drug: reproducibility code for the androgen-suppressed transcriptional state study"
+type: software
+authors:
+  - family-names: "Miao"
+    given-names: "Yingqi"
+    affiliation: "Kyushu University"
+  - family-names: "Baba"
+    given-names: "Takashi"
+    affiliation: "Kyushu University"
+license: MIT
+abstract: >-
+  Analysis code and supporting metadata for construction and evaluation
+  of the androgen-suppressed transcriptional state (ASTS), including
+  mouse adrenal zona fasciculata RNA-seq processing, cross-species
+  signature projection, pharmacogenomic analyses, CRISPR dependency
+  analyses, and robustness analyses in human cancer cell lines.
+keywords:
+  - transcriptomics
+  - pharmacogenomics
+  - CRISPR dependency
+  - cancer cell lines
+  - androgen
+  - adrenal cortex
+  - transcriptional state

@@ -1,0 +1,91 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=4
+#PJM -L elapse=4:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 15
+# Proliferation / cell-cycle confounder audit
+# ============================================================
+
+
+# ============================================================
+# Path / Parameter
+# ============================================================
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT_A="${PROJECT_DIR}/scripts/15a_export_cellcycle_genes.R"
+
+SCRIPT_B="${PROJECT_DIR}/scripts/15b_cellcycle_confounder.py"
+
+N_THREADS=4
+
+
+# ============================================================
+# Environment
+# ============================================================
+
+set -eo pipefail
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+set -u
+
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+export NUMEXPR_NUM_THREADS="${N_THREADS}"
+export MPLBACKEND=Agg
+
+
+# ============================================================
+# Run
+# ============================================================
+
+cd "${PROJECT_DIR}"
+
+
+trap \
+'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' \
+EXIT
+
+
+echo "============================================================"
+echo "ASTRA-Drug Step 15"
+echo "Cell-cycle confounder audit"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo ""
+
+
+echo "Step 15A: Hallmark gene-set export"
+
+micromamba run \
+    -n astra-pathway-r \
+    Rscript \
+    "${SCRIPT_A}"
+
+
+echo ""
+echo "Step 15B: DepMap cell-cycle sensitivity analysis"
+
+micromamba run \
+    -n astra-py \
+    python -u \
+    "${SCRIPT_B}"
+
+
+echo ""
+echo "============================================================"
+echo "Step 15 successfully finished"
+echo "============================================================"

@@ -1,0 +1,117 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=4
+#PJM -L elapse=8:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 18
+# Mitochondrial dependency specificity audit
+# ============================================================
+
+
+# ============================================================
+# Path / Parameter
+# ============================================================
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT_A="${PROJECT_DIR}/scripts/18a_export_mito_gene_sets.R"
+
+SCRIPT_B="${PROJECT_DIR}/scripts/18b_mito_dependency_specificity.py"
+
+SCRIPT_C="${PROJECT_DIR}/scripts/18c_burden_adjusted_GSEA.R"
+
+N_THREADS=4
+
+
+# ============================================================
+# Error handling
+# ============================================================
+
+set -eo pipefail
+
+
+# ============================================================
+# Environment
+# ============================================================
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+set -u
+
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+export NUMEXPR_NUM_THREADS="${N_THREADS}"
+export MPLBACKEND=Agg
+
+
+# ============================================================
+# Run
+# ============================================================
+
+cd "${PROJECT_DIR}"
+
+
+trap \
+'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' \
+EXIT
+
+
+echo "============================================================"
+
+echo "ASTRA-Drug Step 18"
+
+echo "Mitochondrial dependency specificity audit"
+
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+
+echo "Host: $(hostname)"
+
+echo ""
+
+
+echo "Step 18A: export mitochondrial gene sets"
+
+micromamba run \
+    -n astra-pathway-r \
+    Rscript \
+    "${SCRIPT_A}"
+
+
+echo ""
+
+echo "Step 18B: global burden + matched permutation"
+
+micromamba run \
+    -n astra-py \
+    python -u \
+    "${SCRIPT_B}"
+
+
+echo ""
+
+echo "Step 18C: burden-adjusted GSEA"
+
+micromamba run \
+    -n astra-pathway-r \
+    Rscript \
+    "${SCRIPT_C}"
+
+
+echo ""
+
+echo "============================================================"
+
+echo "Step 18 successfully finished"
+
+echo "============================================================"

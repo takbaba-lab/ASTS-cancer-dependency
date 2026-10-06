@@ -1,0 +1,132 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=4
+#PJM -L elapse=6:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 19B/C
+#
+# 19B:
+#   PRISM / GDSC2 screen-specific validation
+#
+# 19C:
+#   CTRPv2 extraction and independent validation
+# ============================================================
+
+
+# ============================================================
+# Path / Parameter
+# ============================================================
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT_19B="${PROJECT_DIR}/scripts/19b_screen_specific_mito_drugs.py"
+
+SCRIPT_19C1="${PROJECT_DIR}/scripts/19c1_extract_CTRPv2.R"
+
+SCRIPT_19C2="${PROJECT_DIR}/scripts/19c2_CTRPv2_mito_drug_validation.py"
+
+TMP_DIR="${PROJECT_DIR}/data/interim/19BC_tmp"
+
+N_THREADS=4
+
+
+# ============================================================
+# Error handling
+# ============================================================
+
+set -eo pipefail
+
+
+# ============================================================
+# Environment
+# ============================================================
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+set -u
+
+
+mkdir -p "${TMP_DIR}"
+
+export TMPDIR="${TMP_DIR}"
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+export NUMEXPR_NUM_THREADS="${N_THREADS}"
+export MPLBACKEND=Agg
+
+
+cd "${PROJECT_DIR}"
+
+
+trap \
+'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' \
+EXIT
+
+
+echo "============================================================"
+echo "ASTRA-Drug Step 19B/C"
+echo "Screen-specific mitochondrial pharmacology"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo ""
+
+
+# ============================================================
+# Step 19B
+# ============================================================
+
+echo "------------------------------------------------------------"
+echo "Step 19B: PRISM / GDSC2"
+echo "------------------------------------------------------------"
+
+micromamba run \
+    -n astra-py \
+    python -u \
+    "${SCRIPT_19B}"
+
+
+# ============================================================
+# Step 19C-1
+# ============================================================
+
+echo ""
+echo "------------------------------------------------------------"
+echo "Step 19C-1: extract CTRPv2 PharmacoSet"
+echo "------------------------------------------------------------"
+
+micromamba run \
+    -n astra-ctrp-r \
+    Rscript \
+    "${SCRIPT_19C1}"
+
+
+# ============================================================
+# Step 19C-2
+# ============================================================
+
+echo ""
+echo "------------------------------------------------------------"
+echo "Step 19C-2: CTRPv2 ASTS association"
+echo "------------------------------------------------------------"
+
+micromamba run \
+    -n astra-py \
+    python -u \
+    "${SCRIPT_19C2}"
+
+
+echo ""
+echo "============================================================"
+echo "Step 19B/C successfully finished"
+echo "============================================================"

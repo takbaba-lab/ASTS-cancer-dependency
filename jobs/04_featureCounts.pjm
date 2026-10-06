@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=8
+#PJM -L elapse=4:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# 04: featureCounts batch job
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/04_featureCounts.sh"
+
+N_THREADS=8
+
+
+# ------------------------------------------------------------
+# Error handling
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+
+# ------------------------------------------------------------
+# micromamba
+# ------------------------------------------------------------
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-map
+
+
+set -u
+
+
+# ------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------
+
+export N_THREADS="${N_THREADS}"
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+
+
+cd "${PROJECT_DIR}"
+
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+
+
+# ------------------------------------------------------------
+# Job information
+# ------------------------------------------------------------
+
+echo "============================================================"
+echo "ASTRA-Drug 04 featureCounts"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo "Working directory: $(pwd)"
+echo "Threads: ${N_THREADS}"
+
+echo ""
+
+featureCounts -v
+
+echo ""
+
+
+# ------------------------------------------------------------
+# Run
+# ------------------------------------------------------------
+
+bash "${SCRIPT}"
+
+
+echo ""
+echo "============================================================"
+echo "04 featureCounts job successfully finished"
+echo "============================================================"

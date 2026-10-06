@@ -1,0 +1,95 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=8
+#PJM -L elapse=6:00:00
+#PJM -j
+#PJM -S
+
+
+# ============================================================
+# ASTRA-Drug
+# 02: Trimmomatic + FastQC + MultiQC batch job
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/02_trimmomatic_qc.sh"
+
+N_THREADS=8
+
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+
+# ------------------------------------------------------------
+# micromamba
+# ------------------------------------------------------------
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-map
+
+
+set -u
+
+
+# ------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------
+
+export N_THREADS="${N_THREADS}"
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+
+cd "${PROJECT_DIR}"
+
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+echo "========================================"
+echo "ASTRA-Drug 02 trimming"
+echo "========================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo "Working directory: $(pwd)"
+echo "Threads: ${N_THREADS}"
+
+echo ""
+echo "---- Software versions ----"
+
+trimmomatic -version
+fastqc --version
+multiqc --version
+
+
+# ------------------------------------------------------------
+# Main
+# ------------------------------------------------------------
+
+echo ""
+echo "Running:"
+echo "${SCRIPT}"
+echo ""
+
+bash "${SCRIPT}"
+
+
+echo ""
+echo "========================================"
+echo "02 job successfully finished"
+echo "========================================"

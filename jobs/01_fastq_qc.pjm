@@ -1,0 +1,124 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=8
+#PJM -L elapse=6:00:00
+#PJM -j
+#PJM -S
+
+
+set -eo pipefail
+
+# ---------- Path / Parameter ----------
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+FASTQ_DIR="${PROJECT_DIR}/data/raw/fastq"
+
+ENV_CONFIG="${PROJECT_DIR}/scripts/astra_map_env.sh"
+N_THREADS=8                         # Match the requested vnode-core count
+
+EXPECTED_FILES=48
+
+GROUPS_ASTRA=(SM SF CO CD CE OO OD OE)
+
+RUN_ID="$(date +%Y%m%d_%H%M%S)_${PJM_JOBID:-$$}"
+
+RUN_DIR="${PROJECT_DIR}/results/qc/${RUN_ID}"
+FASTQC_DIR="${RUN_DIR}/fastqc"
+MULTIQC_DIR="${RUN_DIR}/multiqc"
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+trap 'echo "ERROR: line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
+
+
+if [[ ! -r "${ENV_CONFIG}" ]]; then
+    echo "ERROR: Environment configuration file not found: ${ENV_CONFIG}" >&2
+    exit 1
+fi
+source "${ENV_CONFIG}"
+[[ -x "${MICROMAMBA_BIN}" && -d "${ASTRA_ENV_DIR}/conda-meta" ]]
+
+export PYTHONNOUSERSITE=1
+unset PYTHONPATH PYTHONHOME
+module purge
+
+MAMBA_HOOK="$("${MICROMAMBA_BIN}" shell hook --shell bash)"
+eval "${MAMBA_HOOK}"
+micromamba activate "${ASTRA_ENV_DIR}"
+
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export MPLBACKEND=Agg
+cd "${PROJECT_DIR}"
+mkdir -p "${FASTQC_DIR}" "${MULTIQC_DIR}"
+export TMPDIR="${RUN_DIR}/tmp"
+mkdir -p "${TMPDIR}"
+
+date -Is
+hostname
+pwd
+module list
+command -v fastqc multiqc java gzip
+fastqc --version
+multiqc --version
+java -version
+echo "Output: ${RUN_DIR}"
+
+FASTQ_FILES=()
+for group in "${GROUPS_ASTRA[@]}"; do
+    for replicate in 1 2 3; do
+        for read in 1 2; do
+            file="${FASTQ_DIR}/${group}${replicate}_combined_R${read}.fastq.gz"
+            if [[ ! -r "${file}" || ! -s "${file}" ]]; then
+                echo "ERROR: Input file is missing, empty, or unreadable: ${file}" >&2
+                exit 1
+            fi
+            FASTQ_FILES+=("${file}")
+        done
+    done
+done
+shopt -s nullglob
+ALL_FILES=("${FASTQ_DIR}"/*.fastq.gz)
+if [[ ${#ALL_FILES[@]} -ne ${EXPECTED_FILES} ]]; then
+    echo "ERROR: FASTQ count=${#ALL_FILES[@]}, expected=${EXPECTED_FILES}" >&2
+    exit 1
+fi
+printf '%s\n' "${FASTQ_FILES[@]}" > "${RUN_DIR}/input_fastq_files.txt"
+
+printf 'file\tstatus\n' > "${RUN_DIR}/gzip_integrity.tsv"
+ERROR_COUNT=0
+for ((start=0; start<${#FASTQ_FILES[@]}; start+=N_THREADS)); do
+    PIDS=()
+    BATCH_FILES=()
+    for ((i=start; i<start+N_THREADS && i<${#FASTQ_FILES[@]}; i++)); do
+        file="${FASTQ_FILES[i]}"
+        echo "Checking: ${file##*/}"
+        gzip -t "${file}" 2> "${RUN_DIR}/${file##*/}.gzip.log" &
+        PIDS+=("$!")
+        BATCH_FILES+=("${file}")
+    done
+    for ((i=0; i<${#PIDS[@]}; i++)); do
+        if wait "${PIDS[i]}"; then
+            printf '%s\tPASS\n' "${BATCH_FILES[i]##*/}" >> "${RUN_DIR}/gzip_integrity.tsv"
+        else
+            printf '%s\tFAIL\n' "${BATCH_FILES[i]##*/}" >> "${RUN_DIR}/gzip_integrity.tsv"
+            ERROR_COUNT=$((ERROR_COUNT + 1))
+        fi
+    done
+done
+if [[ ${ERROR_COUNT} -ne 0 ]]; then
+    echo "ERROR: ${ERROR_COUNT} gzip integrity checks failed. FastQC will not be started." >&2
+    exit 1
+fi
+
+# ---------- Step 3: FastQC ----------
+fastqc --threads "${N_THREADS}" --outdir "${FASTQC_DIR}" \
+    "${FASTQ_FILES[@]}" 2>&1 | tee "${RUN_DIR}/fastqc.log"
+QC_ZIPS=("${FASTQC_DIR}"/*_fastqc.zip)
+[[ ${#QC_ZIPS[@]} -eq ${EXPECTED_FILES} ]]
+
+# ---------- Step 4: MultiQC ----------
+multiqc "${FASTQC_DIR}" --outdir "${MULTIQC_DIR}" \
+    --filename ASTRA_Drug_FASTQ_MultiQC.html \
+    2>&1 | tee "${RUN_DIR}/multiqc.log"
+[[ -s "${MULTIQC_DIR}/ASTRA_Drug_FASTQ_MultiQC.html" ]]
+touch "${RUN_DIR}/QC_COMPLETED"
+echo "FASTQ QC completed: ${MULTIQC_DIR}/ASTRA_Drug_FASTQ_MultiQC.html"

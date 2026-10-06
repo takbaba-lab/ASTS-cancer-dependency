@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=2
+#PJM -L elapse=1:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 12: Drug-class robustness analysis
+# ============================================================
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/12_drug_class_robustness.py"
+
+
+# ------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-py
+
+set -u
+
+export MPLBACKEND=Agg
+
+
+# ------------------------------------------------------------
+# Run
+# ------------------------------------------------------------
+
+cd "${PROJECT_DIR}"
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+
+python --version
+
+sha256sum "${SCRIPT}"
+
+python -u "${SCRIPT}"

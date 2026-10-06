@@ -1,0 +1,195 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=4
+#PJM -L elapse=3:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 14B: ASTS pathway characterization by GSEA
+# ============================================================
+#
+#
+#
+# ============================================================
+
+
+# ============================================================
+# Path / Parameter
+# ============================================================
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/14b_ASTS_GSEA.R"
+
+TMP_ROOT="${PROJECT_DIR}/data/interim/14b_tmp"
+
+R_CACHE_ROOT="${PROJECT_DIR}/data/interim/14b_R_cache"
+
+N_THREADS=4
+
+
+# ============================================================
+# Error handling
+# ============================================================
+
+set -eo pipefail
+
+
+# ============================================================
+# Create temporary/cache directories
+# ============================================================
+
+mkdir -p "${TMP_ROOT}"
+mkdir -p "${R_CACHE_ROOT}"
+
+
+# ============================================================
+# Environment
+# ============================================================
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-pathway-r
+
+set -u
+
+
+# ------------------------------------------------------------
+# IMPORTANT
+#
+# ------------------------------------------------------------
+
+export TMPDIR="${TMP_ROOT}"
+
+export TMP="${TMP_ROOT}"
+
+export TEMP="${TMP_ROOT}"
+
+export R_USER_CACHE_DIR="${R_CACHE_ROOT}"
+
+
+# ------------------------------------------------------------
+# CPU threads
+# ------------------------------------------------------------
+
+export OMP_NUM_THREADS="${N_THREADS}"
+
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+
+export MKL_NUM_THREADS="${N_THREADS}"
+
+
+# ============================================================
+# Run
+# ============================================================
+
+cd "${PROJECT_DIR}"
+
+
+trap \
+'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' \
+EXIT
+
+
+echo "============================================================"
+
+echo "ASTRA-Drug Step 14B"
+
+echo "ASTS pathway characterization by GSEA"
+
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+
+echo "Host: $(hostname)"
+
+echo "PWD: $(pwd)"
+
+echo ""
+
+
+echo "Environment:"
+echo "TMPDIR=${TMPDIR}"
+echo "R_USER_CACHE_DIR=${R_USER_CACHE_DIR}"
+
+echo ""
+
+
+echo "R version:"
+
+R --version | head -2
+
+echo ""
+
+
+echo "Package versions:"
+
+Rscript - <<'RS'
+cat(
+    "msigdbr: ",
+    as.character(packageVersion("msigdbr")),
+    "\n",
+    sep=""
+)
+
+cat(
+    "fgsea: ",
+    as.character(packageVersion("fgsea")),
+    "\n",
+    sep=""
+)
+
+cat(
+    "data.table: ",
+    as.character(packageVersion("data.table")),
+    "\n",
+    sep=""
+)
+
+cat(
+    "ggplot2: ",
+    as.character(packageVersion("ggplot2")),
+    "\n",
+    sep=""
+)
+
+cat(
+    "R cache directory: ",
+    tools::R_user_dir("msigdbr", "cache"),
+    "\n",
+    sep=""
+)
+
+cat(
+    "R temp directory: ",
+    tempdir(),
+    "\n",
+    sep=""
+)
+RS
+
+
+echo ""
+
+echo "Script checksum:"
+
+sha256sum "${SCRIPT}"
+
+echo ""
+
+
+Rscript "${SCRIPT}"
+
+
+echo ""
+
+echo "============================================================"
+
+echo "Step 14B successfully finished"
+
+echo "============================================================"

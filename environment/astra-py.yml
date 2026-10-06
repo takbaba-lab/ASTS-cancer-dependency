@@ -1,0 +1,43 @@
+name: astra-py
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - python=3.11
+  - pip
+
+  # numerical / data
+  - numpy
+  - pandas
+  - scipy
+  - pyarrow
+  - duckdb
+
+  # statistics / machine learning
+  - scikit-learn
+  - statsmodels
+  - xgboost
+  - joblib
+
+  # visualization
+  - matplotlib
+
+  # bioinformatics
+  - biopython
+  - gseapy
+
+  # utilities
+  - openpyxl
+  - tqdm
+  - pyyaml
+  - requests
+
+  # interactive analysis
+  - jupyterlab
+  - ipykernel
+
+  - pip:
+      - pydeseq2
+      - mygene

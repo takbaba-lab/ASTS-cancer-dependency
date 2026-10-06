@@ -1,0 +1,29 @@
+#!/bin/bash
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=1
+#PJM -L elapse=0:30:00
+#PJM -j
+#PJM -S
+# ---------- Path / Parameter ----------
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+SCRIPT="${PROJECT_DIR}/scripts/07_map_ASTS_mouse_to_human.py"
+INPUT="${PROJECT_DIR}/results/06b_ASTS_v1/ASTS_v1.0_primary_100genes.tsv"
+REFERENCE_DIR="${PROJECT_DIR}/data/reference/step07_ensembl114"
+OUTPUT_DIR="${PROJECT_DIR}/results/07_ASTS_human_v1"
+PYTHON_BIN="${PYTHON_BIN:-python3}"   # Python >= 3.9
+set -euo pipefail
+export PYTHONNOUSERSITE=1
+unset PYTHONPATH PYTHONHOME
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+cd "${PROJECT_DIR}"
+[[ -s "${INPUT}" && -s "${REFERENCE_DIR}/reference_metadata.json" ]]
+"${PYTHON_BIN}" -c 'import sys; assert sys.version_info >= (3, 9), "Python >= 3.9 is required"'
+date -Is
+hostname
+"${PYTHON_BIN}" --version
+"${PYTHON_BIN}" "${SCRIPT}" map \
+    --input "${INPUT}" \
+    --reference-dir "${REFERENCE_DIR}" \
+    --output-dir "${OUTPUT_DIR}"
+cp "${PROJECT_DIR}/scripts/07_map_ASTS_mouse_to_human.pjm" "${OUTPUT_DIR}/J07_job_snapshot.pjm"
+sha256sum "${OUTPUT_DIR}/J07_job_snapshot.pjm" > "${OUTPUT_DIR}/J07_job_SHA256SUMS.txt"

@@ -1,0 +1,32 @@
+name: astra-r
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - r-base=4.4
+
+  # basic data manipulation
+  - r-data.table
+  - r-dplyr
+  - r-readr
+  - r-tidyr
+  - r-optparse
+
+  # visualization
+  - r-ggplot2
+  - r-pheatmap
+
+  # RNA-seq
+  - bioconductor-deseq2
+  - bioconductor-edger
+  - bioconductor-limma
+
+  # enrichment
+  - bioconductor-fgsea
+
+  # annotation
+  - bioconductor-org.mm.eg.db
+  - bioconductor-org.hs.eg.db
+  - bioconductor-biomart

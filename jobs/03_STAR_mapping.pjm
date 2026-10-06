@@ -1,0 +1,101 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=16
+#PJM -L elapse=8:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# 03: STAR mapping batch job
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Path / Parameter
+# ------------------------------------------------------------
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/03_STAR_mapping.sh"
+
+N_THREADS=16
+
+
+# ------------------------------------------------------------
+# Error handling
+# ------------------------------------------------------------
+
+set -eo pipefail
+
+
+# ------------------------------------------------------------
+# micromamba
+# ------------------------------------------------------------
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-map
+
+
+set -u
+
+
+# ------------------------------------------------------------
+# Environment
+# ------------------------------------------------------------
+
+export N_THREADS="${N_THREADS}"
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+
+
+cd "${PROJECT_DIR}"
+
+
+trap 'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' EXIT
+
+
+# ------------------------------------------------------------
+# Job information
+# ------------------------------------------------------------
+
+echo "============================================================"
+echo "ASTRA-Drug 03 STAR mapping"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo "Working directory: $(pwd)"
+echo "Threads: ${N_THREADS}"
+
+echo ""
+
+echo -n "STAR version: "
+STAR --version
+
+echo -n "samtools version: "
+samtools --version | head -n 1
+
+echo -n "MultiQC version: "
+multiqc --version
+
+echo ""
+
+
+# ------------------------------------------------------------
+# Run
+# ------------------------------------------------------------
+
+bash "${SCRIPT}"
+
+
+echo ""
+echo "============================================================"
+echo "03 STAR mapping job successfully finished"
+echo "============================================================"

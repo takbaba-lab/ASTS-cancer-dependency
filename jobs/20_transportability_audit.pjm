@@ -1,0 +1,95 @@
+#!/bin/bash
+
+#PJM -L rscgrp=a-batch
+#PJM -L vnode-core=4
+#PJM -L elapse=4:00:00
+#PJM -j
+#PJM -S
+
+# ============================================================
+# ASTRA-Drug
+# Step 20
+# Transportability / influence audit
+# ============================================================
+
+
+# ============================================================
+# Path / Parameter
+# ============================================================
+
+PROJECT_DIR="${ASTRA_PROJECT_DIR:-$PWD}"
+
+SCRIPT="${PROJECT_DIR}/scripts/20_transportability_audit.py"
+
+N_THREADS=4
+
+
+# ============================================================
+# Error handling
+# ============================================================
+
+set -eo pipefail
+
+
+# ============================================================
+# Environment
+# ============================================================
+
+source "${HOME}/.bashrc" || true
+
+eval "$(micromamba shell hook --shell bash)"
+
+micromamba activate astra-py
+
+set -u
+
+
+export OMP_NUM_THREADS="${N_THREADS}"
+export OPENBLAS_NUM_THREADS="${N_THREADS}"
+export MKL_NUM_THREADS="${N_THREADS}"
+export NUMEXPR_NUM_THREADS="${N_THREADS}"
+export MPLBACKEND=Agg
+
+
+# ============================================================
+# Run
+# ============================================================
+
+cd "${PROJECT_DIR}"
+
+
+trap \
+'rc=$?; echo "End: $(date -Is) / exit_code=${rc}"' \
+EXIT
+
+
+echo "============================================================"
+echo "ASTRA-Drug Step 20"
+echo "Transportability / influence audit"
+echo "============================================================"
+
+echo "Start: $(date -Is)"
+echo "Host: $(hostname)"
+echo ""
+
+
+echo "Script checksum:"
+
+sha256sum "${SCRIPT}"
+
+
+echo ""
+
+python --version
+
+
+echo ""
+
+python -u "${SCRIPT}"
+
+
+echo ""
+
+echo "============================================================"
+echo "Step 20 successfully finished"
+echo "============================================================"
