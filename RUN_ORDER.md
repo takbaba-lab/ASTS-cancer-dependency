@@ -331,10 +331,10 @@ Notes on reproducibility
 2. ASTS is calculated from relative expression ranks and should not be interpreted as a measure of absolute RNA abundance.
 3. Third-party datasets are not redistributed in this repository.
 4. Large sequencing intermediates such as BAM files and STAR indices are intentionally excluded.
-5. The archived Zenodo dataset will contain selected processed and derived data required to reproduce the reported figures and statistical results without redistributing restricted third-party source files.
+5. The archived Zenodo dataset contains selected processed and derived data required to reproduce the reported figures and statistical results without redistributing restricted third-party source files.
 6. The public code uses portable project paths and does not require the original Genkai user directory structure.
 Archived release
-The final manuscript-associated code release will be archived in Zenodo.
-Software DOI: to be added
-Processed and derived data will be provided in a separate Zenodo dataset record.
-Dataset DOI: to be added
+A fixed archival release of the analysis code is available in Zenodo.
+Software DOI: https://doi.org/10.5281/zenodo.23179457
+Processed and derived data are archived in a separate Zenodo dataset record.
+Dataset DOI: https://doi.org/10.5281/zenodo.23178149

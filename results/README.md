@@ -43,7 +43,7 @@ The exact output paths used by each step are defined in the corresponding analys
 
 GitHub contains the analysis code and reproducibility framework.
 
-Selected processed and derived result tables supporting the manuscript were deposited separately in Zenodo. These files will include key outputs needed to reproduce the reported statistical results and figures without requiring redistribution of restricted third-party source datasets.
+Selected processed and derived result tables supporting the manuscript were deposited separately in Zenodo. These files include key outputs needed to reproduce the reported statistical results and figures without requiring redistribution of restricted third-party source datasets.
 
 Processed and derived data underlying the analyses and figures are archived separately in Zenodo.
 

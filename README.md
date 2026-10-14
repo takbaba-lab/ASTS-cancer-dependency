@@ -76,6 +76,8 @@ Detailed execution order and dependencies are described in [`RUN_ORDER.md`](RUN_
  │   ├── astra-map.yml
  │   ├── astra-py.yml
  │   ├── astra-r.yml
+ │   ├── astra-pathway-r.yml
+ │   ├── astra-ctrp-r.yml
  │   └── package-lock exports
  │
  ├── metadata/
@@ -148,14 +150,17 @@ See [`reference/README.md`](reference/README.md) for details.
 
 ### Computing environments
 
-Three environment specifications are provided:
-environment/astra-map.yml
-environment/astra-py.yml
-environment/astra-r.yml
+Five environment specifications are provided:
 
-These correspond to the principal software environments used for mapping, Python-based analyses, and R-based analyses.
+- `environment/astra-map.yml`
+- `environment/astra-py.yml`
+- `environment/astra-r.yml`
+- `environment/astra-pathway-r.yml`
+- `environment/astra-ctrp-r.yml`
 
-Package-lock exports are also provided to document the analysis environment more completely.
+These correspond to the principal software environments used for read mapping, Python-based analyses, DESeq2-based RNA-seq analyses, pathway/GSEA analyses, and CTRPv2/PharmacoGx analyses, respectively.
+
+Explicit package-lock exports are also provided where applicable to document the analysis environments more completely.
 
 The environment files were sanitized for public release and do not contain user-specific installation paths.
 
